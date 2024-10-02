@@ -1,7 +1,12 @@
 import "./App.css";
+import MathCanvas from "./components/MathCanvas";
 
 function App() {
-  return <div>app</div>;
+  return (
+    <>
+      <MathCanvas />
+    </>
+  );
 }
 
 export default App;
