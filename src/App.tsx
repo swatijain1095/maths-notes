@@ -6,10 +6,18 @@ import { ThemeToggle } from "./components/ThemeToggle";
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <div className="flex justify-end">
-        <ThemeToggle />
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1
+            className="m-auto text-4xl font-bold text-black dark:text-white"
+            style={{ zIndex: 100 }}
+          >
+            Maths Notes
+          </h1>
+          <ThemeToggle />
+        </div>
+        <MathCanvas />
       </div>
-      <MathCanvas />
     </ThemeProvider>
   );
 }
