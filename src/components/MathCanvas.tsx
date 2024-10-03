@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/button";
+import { callGeminiApi } from "../api";
+
 const MathCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [reset, setReset] = useState(false);
+  const [dictionaryOfVars, setDictionaryOfVars] = useState({});
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -69,6 +72,18 @@ const MathCanvas = () => {
     }
   };
 
+  const sendData = async () => {
+    const canvas = canvasRef.current;
+
+    if (canvas) {
+      const base64Image = canvas.toDataURL("image/png");
+
+      const response = await callGeminiApi(base64Image, dictionaryOfVars);
+
+      console.log("Response: ", response);
+    }
+  };
+
   return (
     <>
       <div className="absolute top-50 right-5 z-10 flex gap-2">
@@ -80,7 +95,7 @@ const MathCanvas = () => {
           Reset
         </Button>
         <Button
-          // onClick={runRoute}
+          onClick={sendData}
           className="z-20 bg-black text-white  dark:bg-white dark:text-black"
           variant="default"
           color="white"
