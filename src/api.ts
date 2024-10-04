@@ -56,10 +56,13 @@ export const callGeminiApi = async (
   });
 
   const prompt = `
-    You have been given an image with some mathematical expressions, equations, or graphical problems. Solve them using BODMAS. The following cases apply:
+    You have been given an image with some mathematical expressions, equations, or graphical problems. You need to solve them. Solve them using BODMAS. The following cases apply:
     1. Simple mathematical expressions (like 2 + 2, 3 * 4) - solve and return a single result.
-    2. Set of equations (x^2 + 2x + 1 = 0) - solve for variables and return them.
-    3. Assigning values to variables (x = 4, y = 5) - return values with assignment.
+    2. Set of Equations like x^2 + 2x + 1 = 0, 3y + 4x = 0, 5x^2 + 6y + 7 = 12, etc.: In this case, solve for all the given variable, and the format should be a COMMA SEPARATED LIST OF DICTS,
+     with dict 1 as {{'expr': 'x', 'result': 2, 'assign': True}} and dict 2 as {{'expr': 'y', 'result': 5, 'assign': True}}. This example assumes x was calculated as 2, 
+     and y as 5. Include as many dicts as there are variables. Also consider sign
+    3. Assigning values to variables like x = 4, y = 5, z = 6, etc.: In this case, assign values to variables and return another key in the dict called {{'assign': True}},
+     keeping the variable as 'expr' and the value as 'result' in the original dictionary. RETURN AS A LIST OF DICTS. Also consider sign.
     4. Graphical math problems (car collisions, Pythagorean theorem) - solve and return the result.
     5. Abstract concepts (love, war, etc.) in drawings - interpret and return the concept.
     Make sure to use the correct variable values from the dictionary if they are provided: ${JSON.stringify(

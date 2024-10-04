@@ -9,7 +9,7 @@ function App() {
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h1
-            className="m-auto text-4xl font-bold text-black dark:text-white"
+            className="text-4xl font-bold text-black dark:text-white"
             style={{ zIndex: 100 }}
           >
             Maths Notes
