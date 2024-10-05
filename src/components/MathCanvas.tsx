@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/button";
 import { callGeminiApi } from "../api";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface GeneratedResult {
   expression: string;
@@ -20,7 +21,7 @@ const MathCanvas = () => {
   const [reset, setReset] = useState(false);
   const [dictionaryOfVars, setDictionaryOfVars] = useState({});
   const [result, setResult] = useState<GeneratedResult[]>([]);
-  const [position, setPosition] = useState({ x: 100, y: 200 });
+  const [position] = useState({ x: 100, y: 200 });
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -29,19 +30,20 @@ const MathCanvas = () => {
     if (canvas) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        // canvas.width = window.innerWidth;
-        // canvas.height = window.innerHeight - canvas.offsetTop;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         ctx.lineCap = "round";
         ctx.lineWidth = 3;
       }
     }
-  }, []);
+  }, [window.innerWidth, window.innerHeight]);
 
   useEffect(() => {
     if (reset) {
       resetCanvas();
-      setReset(false);
       setResult([]);
+      setDictionaryOfVars({});
+      setReset(false);
     }
   }, [reset]);
 
@@ -87,15 +89,15 @@ const MathCanvas = () => {
   };
 
   const sendData = async () => {
+    setResult([]);
     const canvas = canvasRef.current;
 
     if (canvas) {
       const base64Image = canvas.toDataURL("image/png");
-
       const response = await callGeminiApi(base64Image, dictionaryOfVars);
-      console.log("Response: ", response);
+
       const parsedResponse: Response[] = JSON.parse(response);
-      console.log({ parsedResponse });
+
       parsedResponse.forEach((data) => {
         if (data.assign) {
           setDictionaryOfVars((prev) => ({
@@ -114,33 +116,39 @@ const MathCanvas = () => {
 
   return (
     <>
-      <div className="absolute top-50 right-5 z-10 flex gap-2">
+      <h1 className="absolute top-5 left-5 text-4xl font-bold text-black dark:text-white">
+        Maths Notes
+      </h1>
+
+      <div className="absolute right-5 top-5 flex gap-2">
         <Button
           onClick={() => setReset(true)}
           variant="outline"
-          className="bg-black text-white dark:bg-white dark:text-black"
+          className=" text-black dark:text-white"
         >
           Reset
         </Button>
         <Button
           onClick={sendData}
-          className="z-20 bg-black text-white  dark:bg-white dark:text-black"
-          variant="default"
-          color="white"
+          className="text-black dark:text-white"
+          variant="outline"
         >
           Calculate
         </Button>
+        <ThemeToggle />
       </div>
+
       <canvas
-        width="100%"
-        height="100%"
         ref={canvasRef}
         id="canvas"
-        className="absolute top-0 left-0 bg-white dark:bg-black"
+        className=" top-0 bg-white dark:bg-black"
         onMouseDown={drawingStart}
         onMouseOut={drawingStop}
         onMouseUp={drawingStop}
         onMouseMove={draw}
+        style={{
+          cursor: `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
+        }}
       />
 
       {result &&
