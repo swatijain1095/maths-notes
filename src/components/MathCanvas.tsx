@@ -172,7 +172,7 @@ const MathCanvas = () => {
         result.map((result, index) => (
           <div
             key={index}
-            className="absolute p-2 text-white rounded shadow-md"
+            className="absolute p-2 text-black dark:text-white"
             style={{ left: 30, top: position.y + index * 30 }}
           >
             <div>{` ${result.expression} = ${result.answer} `}</div>
