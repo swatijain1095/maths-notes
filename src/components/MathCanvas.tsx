@@ -3,6 +3,7 @@ import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/button";
 import { callGeminiApi } from "../api";
 import { ThemeToggle } from "./ThemeToggle";
+import { Eraser, PencilLine } from "lucide-react";
 
 interface GeneratedResult {
   expression: string;
@@ -22,6 +23,7 @@ const MathCanvas = () => {
   const [dictionaryOfVars, setDictionaryOfVars] = useState({});
   const [result, setResult] = useState<GeneratedResult[]>([]);
   const [position] = useState({ x: 100, y: 200 });
+  const [isErasing, setIsErasing] = useState(false);
   const { theme } = useTheme();
 
   useLayoutEffect(() => {
@@ -73,16 +75,23 @@ const MathCanvas = () => {
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) {
-      return;
-    }
+    if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.strokeStyle = theme === "dark" ? "white" : "black";
-        ctx.lineTo(event.clientX, event.clientY);
-        ctx.stroke();
+        if (isErasing) {
+          ctx.clearRect(
+            event.nativeEvent.offsetX - 10,
+            event.nativeEvent.offsetY - 10,
+            15,
+            15
+          );
+        } else {
+          ctx.strokeStyle = theme === "dark" ? "white" : "black";
+          ctx.lineTo(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
+          ctx.stroke();
+        }
       }
     }
   };
@@ -121,6 +130,13 @@ const MathCanvas = () => {
 
       <div className="absolute right-5 top-5 flex gap-2">
         <Button
+          onClick={() => setIsErasing(!isErasing)}
+          className="text-black dark:text-white"
+          variant="outline"
+        >
+          {isErasing ? <Eraser /> : <PencilLine />}
+        </Button>
+        <Button
           onClick={() => setReset(true)}
           variant="outline"
           className=" text-black dark:text-white"
@@ -146,7 +162,9 @@ const MathCanvas = () => {
         onMouseUp={drawingStop}
         onMouseMove={draw}
         style={{
-          cursor: `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
+          cursor: isErasing
+            ? `url('../src/assets/eraser-${theme}.svg') 5 22, auto`
+            : `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
         }}
       />
 
