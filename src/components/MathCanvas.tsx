@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/button";
 import { callGeminiApi } from "../api";
@@ -24,9 +24,8 @@ const MathCanvas = () => {
   const [position] = useState({ x: 100, y: 200 });
   const { theme } = useTheme();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
-
     if (canvas) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
@@ -36,7 +35,7 @@ const MathCanvas = () => {
         ctx.lineWidth = 3;
       }
     }
-  }, [window.innerWidth, window.innerHeight]);
+  }, []);
 
   useEffect(() => {
     if (reset) {
@@ -89,11 +88,11 @@ const MathCanvas = () => {
   };
 
   const sendData = async () => {
-    setResult([]);
     const canvas = canvasRef.current;
 
     if (canvas) {
       const base64Image = canvas.toDataURL("image/png");
+      setResult([]);
       const response = await callGeminiApi(base64Image, dictionaryOfVars);
 
       const parsedResponse: Response[] = JSON.parse(response);
