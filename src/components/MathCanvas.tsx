@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { callGeminiApi } from "../api";
 import { ThemeToggle } from "./ThemeToggle";
 import { Eraser, PencilLine } from "lucide-react";
+import Draggable from "react-draggable";
 
 interface GeneratedResult {
   expression: string;
@@ -22,17 +23,18 @@ const MathCanvas = () => {
   const [reset, setReset] = useState(false);
   const [dictionaryOfVars, setDictionaryOfVars] = useState({});
   const [result, setResult] = useState<GeneratedResult[]>([]);
-  const [position] = useState({ x: 100, y: 200 });
+  const [position, setPosition] = useState({ x: 100, y: 200 });
   const [isErasing, setIsErasing] = useState(false);
   const { theme } = useTheme();
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas) {
+    const rootContainer = document.getElementById("root");
+    if (canvas && rootContainer) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = rootContainer.clientWidth;
+        canvas.height = rootContainer.clientHeight;
         ctx.lineCap = "round";
         ctx.lineWidth = 3;
       }
@@ -127,14 +129,13 @@ const MathCanvas = () => {
       <h1 className="absolute top-5 left-5 text-4xl font-bold text-black dark:text-white">
         Maths Notes
       </h1>
-
       <div className="absolute right-5 top-5 flex gap-2">
         <Button
           onClick={() => setIsErasing(!isErasing)}
           className="text-black dark:text-white"
           variant="outline"
         >
-          {isErasing ? <Eraser /> : <PencilLine />}
+          {isErasing ? <PencilLine /> : <Eraser />}
         </Button>
         <Button
           onClick={() => setReset(true)}
@@ -152,11 +153,10 @@ const MathCanvas = () => {
         </Button>
         <ThemeToggle />
       </div>
-
       <canvas
         ref={canvasRef}
         id="canvas"
-        className=" top-0 bg-white dark:bg-black"
+        className="bg-white dark:bg-black"
         onMouseDown={drawingStart}
         onMouseOut={drawingStop}
         onMouseUp={drawingStop}
@@ -167,16 +167,22 @@ const MathCanvas = () => {
             : `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
         }}
       />
-
       {result &&
         result.map((result, index) => (
-          <div
+          <Draggable
             key={index}
-            className="absolute p-2 text-black dark:text-white"
-            style={{ left: 30, top: position.y + index * 30 }}
+            defaultPosition={{ x: position.x, y: position.y + index * 30 }}
+            onStop={(_, data) =>
+              setPosition({ x: data.deltaX, y: data.deltaX })
+            }
           >
-            <div>{` ${result.expression} = ${result.answer} `}</div>
-          </div>
+            <div
+              className="absolute p-2 text-black dark:text-white"
+              style={{ top: 0 }}
+            >
+              {` ${result.expression} = ${result.answer} `}
+            </div>
+          </Draggable>
         ))}
     </>
   );
