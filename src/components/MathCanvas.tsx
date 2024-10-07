@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Eraser, PencilLine } from "lucide-react";
 import Draggable from "react-draggable";
 import { Slider } from "./ui/slider";
+import html2canvas from "html2canvas";
 
 interface GeneratedResult {
   expression: string;
@@ -15,16 +16,14 @@ interface GeneratedResult {
 interface Response {
   expr: string;
   result: string;
-  assign: boolean;
 }
 
 const MathCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [reset, setReset] = useState(false);
-  const [dictionaryOfVars, setDictionaryOfVars] = useState({});
   const [result, setResult] = useState<GeneratedResult[]>([]);
-  const [position, setPosition] = useState({ x: 100, y: 200 });
   const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState(3);
   const [eraserSize, setEraserSize] = useState(15);
@@ -48,7 +47,6 @@ const MathCanvas = () => {
     if (reset) {
       resetCanvas();
       setResult([]);
-      setDictionaryOfVars({});
       setReset(false);
     }
   }, [reset]);
@@ -103,37 +101,35 @@ const MathCanvas = () => {
   };
 
   const sendData = async () => {
-    const canvas = canvasRef.current;
+    const canvasContainer = canvasContainerRef.current;
 
-    if (canvas) {
+    if (canvasContainer) {
+      const canvas = await html2canvas(canvasContainer);
       const base64Image = canvas.toDataURL("image/png");
-      setResult([]);
-      const response = await callGeminiApi(base64Image, dictionaryOfVars);
-
+      const response = await callGeminiApi(base64Image);
+      resetCanvas();
       const parsedResponse: Response[] = JSON.parse(response);
-
-      parsedResponse.forEach((data) => {
-        if (data.assign) {
-          setDictionaryOfVars((prev) => ({
-            ...prev,
-            [data.expr]: data.result,
-          }));
+      const formattedResponse = parsedResponse.map(({ expr, result }) => ({
+        expression: expr,
+        answer: result,
+      }));
+      const uniqueResult = formattedResponse.filter(
+        ({ expression, answer }) => {
+          return !result.some(
+            (item) => item.expression === expression && item.answer === answer
+          );
         }
-
-        setResult((prevResults) => [
-          ...prevResults,
-          { expression: data.expr, answer: data.result },
-        ]);
-      });
+      );
+      setResult([...result, ...uniqueResult]);
     }
   };
 
   return (
     <>
-      <h1 className="absolute top-5 left-5 text-4xl font-bold text-black dark:text-white">
+      <h1 className="absolute top-5 left-5 text-4xl font-bold text-black dark:text-white z-10">
         Maths Notes
       </h1>
-      <div className="absolute right-5 top-5 flex gap-2">
+      <div className="absolute right-5 top-5 flex gap-2 z-10">
         <Button
           onClick={() => setIsErasing(!isErasing)}
           className="text-black dark:text-white"
@@ -157,7 +153,7 @@ const MathCanvas = () => {
         </Button>
         <ThemeToggle />
       </div>
-      <div className=" absolute flex gap-3 bottom-5 left-[50%] right-[50%] w-[280px] translate-x-[-50%]">
+      <div className="absolute flex gap-3 bottom-5 left-[50%] right-[50%] w-[280px] translate-x-[-50%] z-10">
         <Slider
           defaultValue={isErasing ? [eraserSize] : [lineWidth]}
           max={isErasing ? 50 : 10}
@@ -169,37 +165,36 @@ const MathCanvas = () => {
         />
         {isErasing ? <Eraser /> : <PencilLine />}
       </div>
-      <canvas
-        ref={canvasRef}
-        id="canvas"
-        className="bg-white dark:bg-black"
-        onMouseDown={drawingStart}
-        onMouseOut={drawingStop}
-        onMouseUp={drawingStop}
-        onMouseMove={draw}
-        style={{
-          cursor: isErasing
-            ? `url('../src/assets/eraser-${theme}.svg') 5 22, auto`
-            : `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
-        }}
-      />
-      {result &&
-        result.map((result, index) => (
-          <Draggable
-            key={index}
-            defaultPosition={{ x: position.x, y: position.y + index * 30 }}
-            onStop={(_, data) =>
-              setPosition({ x: data.deltaX, y: data.deltaX })
-            }
-          >
-            <div
-              className="absolute p-2 text-black dark:text-white cursor-pointer"
-              style={{ top: 0 }}
+      <div ref={canvasContainerRef} className="w-[100%] h-[100%] relative">
+        <canvas
+          ref={canvasRef}
+          id="canvas"
+          className="bg-white dark:bg-black"
+          onMouseDown={drawingStart}
+          onMouseOut={drawingStop}
+          onMouseUp={drawingStop}
+          onMouseMove={draw}
+          style={{
+            cursor: isErasing
+              ? `url('../src/assets/eraser-${theme}.svg') 5 22, auto`
+              : `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
+          }}
+        />
+        {result &&
+          result.map((result, index) => (
+            <Draggable
+              key={index}
+              defaultPosition={{ x: 100, y: 200 + index * 30 }}
             >
-              {` ${result.expression} = ${result.answer} `}
-            </div>
-          </Draggable>
-        ))}
+              <div
+                className="absolute p-2 z-10 text-black dark:text-white cursor-pointer text-2xl"
+                style={{ top: 0 }}
+              >
+                {` ${result.expression} = ${result.answer} `}
+              </div>
+            </Draggable>
+          ))}
+      </div>
     </>
   );
 };
