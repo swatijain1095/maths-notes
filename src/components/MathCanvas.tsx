@@ -5,6 +5,7 @@ import { callGeminiApi } from "../api";
 import { ThemeToggle } from "./ThemeToggle";
 import { Eraser, PencilLine } from "lucide-react";
 import Draggable from "react-draggable";
+import { Slider } from "./ui/slider";
 
 interface GeneratedResult {
   expression: string;
@@ -25,6 +26,8 @@ const MathCanvas = () => {
   const [result, setResult] = useState<GeneratedResult[]>([]);
   const [position, setPosition] = useState({ x: 100, y: 200 });
   const [isErasing, setIsErasing] = useState(false);
+  const [lineWidth, setLineWidth] = useState(3);
+  const [eraserSize, setEraserSize] = useState(15);
   const { theme } = useTheme();
 
   useLayoutEffect(() => {
@@ -36,10 +39,10 @@ const MathCanvas = () => {
         canvas.width = rootContainer.clientWidth;
         canvas.height = rootContainer.clientHeight;
         ctx.lineCap = "round";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = lineWidth;
       }
     }
-  }, []);
+  }, [lineWidth]);
 
   useEffect(() => {
     if (reset) {
@@ -84,14 +87,15 @@ const MathCanvas = () => {
       if (ctx) {
         if (isErasing) {
           ctx.clearRect(
-            event.nativeEvent.offsetX - 10,
-            event.nativeEvent.offsetY - 10,
-            15,
-            15
+            event.nativeEvent.offsetX - eraserSize / 2,
+            event.nativeEvent.offsetY - eraserSize / 2,
+            eraserSize,
+            eraserSize
           );
         } else {
           ctx.strokeStyle = theme === "dark" ? "white" : "black";
           ctx.lineTo(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
+          ctx.lineWidth = lineWidth;
           ctx.stroke();
         }
       }
@@ -153,6 +157,18 @@ const MathCanvas = () => {
         </Button>
         <ThemeToggle />
       </div>
+      <div className=" absolute flex gap-3 bottom-5 left-[50%] right-[50%] w-[280px] translate-x-[-50%]">
+        <Slider
+          defaultValue={isErasing ? [eraserSize] : [lineWidth]}
+          max={isErasing ? 50 : 10}
+          value={isErasing ? [eraserSize] : [lineWidth]}
+          onValueChange={(value) =>
+            isErasing ? setEraserSize(value[0]) : setLineWidth(value[0])
+          }
+          className="w-[100%]"
+        />
+        {isErasing ? <Eraser /> : <PencilLine />}
+      </div>
       <canvas
         ref={canvasRef}
         id="canvas"
@@ -177,7 +193,7 @@ const MathCanvas = () => {
             }
           >
             <div
-              className="absolute p-2 text-black dark:text-white"
+              className="absolute p-2 text-black dark:text-white cursor-pointer"
               style={{ top: 0 }}
             >
               {` ${result.expression} = ${result.answer} `}
