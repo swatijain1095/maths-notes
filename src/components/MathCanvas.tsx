@@ -8,6 +8,9 @@ import Draggable from "react-draggable";
 import { Slider } from "./ui/slider";
 import loader from "../../src/assets/loader.gif";
 import html2canvas from "html2canvas";
+import { Toaster } from "./ui/toaster";
+import { useToast } from "../../src/hooks/use-toast";
+import { ToastAction } from "./ui/toast";
 
 interface GeneratedResult {
   expression: string;
@@ -30,6 +33,7 @@ const MathCanvas = () => {
   const [eraserSize, setEraserSize] = useState(25);
   const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
+  const { toast } = useToast();
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -126,7 +130,12 @@ const MathCanvas = () => {
         );
         setResult([...result, ...uniqueResult]);
       } catch (error) {
-        console.error("Error fetching data", error);
+        toast({
+          title: "Error",
+          description: "Something is wrong. Please try again.",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -135,6 +144,7 @@ const MathCanvas = () => {
 
   return (
     <>
+      <Toaster />
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-200 z-50">
           <img src={loader} alt="Loading..." />
@@ -181,6 +191,7 @@ const MathCanvas = () => {
         />
         {isErasing ? <Eraser /> : <PencilLine />}
       </div>
+
       <div ref={canvasContainerRef} className="w-full h-full relative">
         <canvas
           ref={canvasRef}
