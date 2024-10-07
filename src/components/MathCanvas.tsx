@@ -26,7 +26,7 @@ const MathCanvas = () => {
   const [result, setResult] = useState<GeneratedResult[]>([]);
   const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState(3);
-  const [eraserSize, setEraserSize] = useState(15);
+  const [eraserSize, setEraserSize] = useState(25);
   const { theme } = useTheme();
 
   useLayoutEffect(() => {
@@ -41,7 +41,7 @@ const MathCanvas = () => {
         ctx.lineWidth = lineWidth;
       }
     }
-  }, [lineWidth]);
+  }, []);
 
   useEffect(() => {
     if (reset) {
@@ -126,34 +126,36 @@ const MathCanvas = () => {
 
   return (
     <>
-      <h1 className="absolute top-5 left-5 text-4xl font-bold text-black dark:text-white z-10">
-        Maths Notes
-      </h1>
-      <div className="absolute right-5 top-5 flex gap-2 z-10">
-        <Button
-          onClick={() => setIsErasing(!isErasing)}
-          className="text-black dark:text-white"
-          variant="outline"
-        >
-          {isErasing ? <PencilLine /> : <Eraser />}
-        </Button>
-        <Button
-          onClick={() => setReset(true)}
-          variant="outline"
-          className=" text-black dark:text-white"
-        >
-          Reset
-        </Button>
-        <Button
-          onClick={sendData}
-          className="text-black dark:text-white"
-          variant="outline"
-        >
-          Calculate
-        </Button>
-        <ThemeToggle />
+      <div className="absolute top-2 left-2 right-2 flex flex-col md:flex-row justify-between items-center md:items-start md:p-4 z-10">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl  font-bold text-black dark:text-white">
+          Maths Notes
+        </h1>
+        <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+          <Button
+            onClick={() => setIsErasing(!isErasing)}
+            className="text-black dark:text-white"
+            variant="outline"
+          >
+            {isErasing ? <PencilLine /> : <Eraser />}
+          </Button>
+          <Button
+            onClick={() => setReset(true)}
+            variant="outline"
+            className=" text-black dark:text-white"
+          >
+            Reset
+          </Button>
+          <Button
+            onClick={sendData}
+            className="text-black dark:text-white"
+            variant="outline"
+          >
+            Calculate
+          </Button>
+          <ThemeToggle />
+        </div>
       </div>
-      <div className="absolute flex gap-3 bottom-5 left-[50%] right-[50%] w-[280px] translate-x-[-50%] z-10">
+      <div className="absolute flex gap-3 bottom-5 left-[50%] right-[50%] w-[50%] md:w-[280px] translate-x-[-50%] z-10">
         <Slider
           defaultValue={isErasing ? [eraserSize] : [lineWidth]}
           max={isErasing ? 50 : 10}
@@ -165,11 +167,11 @@ const MathCanvas = () => {
         />
         {isErasing ? <Eraser /> : <PencilLine />}
       </div>
-      <div ref={canvasContainerRef} className="w-[100%] h-[100%] relative">
+      <div ref={canvasContainerRef} className="w-full h-full relative">
         <canvas
           ref={canvasRef}
           id="canvas"
-          className="bg-white dark:bg-black"
+          className="bg-white dark:bg-black w-full h-full"
           onMouseDown={drawingStart}
           onMouseOut={drawingStop}
           onMouseUp={drawingStop}
@@ -187,7 +189,7 @@ const MathCanvas = () => {
               defaultPosition={{ x: 100, y: 200 + index * 30 }}
             >
               <div
-                className="absolute p-2 z-10 text-black dark:text-white cursor-pointer text-2xl"
+                className="absolute p-2 z-10 text-black dark:text-white cursor-pointer text-xl sm:text-2xl"
                 style={{ top: 0 }}
               >
                 {` ${result.expression} = ${result.answer} `}
