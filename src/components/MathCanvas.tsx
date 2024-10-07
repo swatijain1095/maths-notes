@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Eraser, PencilLine } from "lucide-react";
 import Draggable from "react-draggable";
 import { Slider } from "./ui/slider";
+import loader from "../../src/assets/loader.gif";
 import html2canvas from "html2canvas";
 
 interface GeneratedResult {
@@ -27,6 +28,7 @@ const MathCanvas = () => {
   const [isErasing, setIsErasing] = useState(false);
   const [lineWidth, setLineWidth] = useState(3);
   const [eraserSize, setEraserSize] = useState(25);
+  const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
 
   useLayoutEffect(() => {
@@ -101,31 +103,43 @@ const MathCanvas = () => {
   };
 
   const sendData = async () => {
+    setIsLoading(true);
     const canvasContainer = canvasContainerRef.current;
 
     if (canvasContainer) {
       const canvas = await html2canvas(canvasContainer);
       const base64Image = canvas.toDataURL("image/png");
-      const response = await callGeminiApi(base64Image);
-      resetCanvas();
-      const parsedResponse: Response[] = JSON.parse(response);
-      const formattedResponse = parsedResponse.map(({ expr, result }) => ({
-        expression: expr,
-        answer: result,
-      }));
-      const uniqueResult = formattedResponse.filter(
-        ({ expression, answer }) => {
-          return !result.some(
-            (item) => item.expression === expression && item.answer === answer
-          );
-        }
-      );
-      setResult([...result, ...uniqueResult]);
+      try {
+        const response = await callGeminiApi(base64Image);
+        resetCanvas();
+        const parsedResponse: Response[] = JSON.parse(response);
+        const formattedResponse = parsedResponse.map(({ expr, result }) => ({
+          expression: expr,
+          answer: result,
+        }));
+        const uniqueResult = formattedResponse.filter(
+          ({ expression, answer }) => {
+            return !result.some(
+              (item) => item.expression === expression && item.answer === answer
+            );
+          }
+        );
+        setResult([...result, ...uniqueResult]);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-gray-200 z-50">
+          <img src={loader} alt="Loading..." />
+        </div>
+      )}
       <div className="absolute top-2 left-2 right-2 flex flex-col md:flex-row justify-between items-center md:items-start md:p-4 z-10">
         <h1 className="text-2xl sm:text-3xl md:text-4xl  font-bold text-black dark:text-white">
           Maths Notes
