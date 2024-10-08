@@ -46,19 +46,55 @@ export const callGeminiApi = async (base64Image: string) => {
       responseSchema: schema,
     },
   });
-
   const prompt = `
-   You have been given an image with some mathematical expressions, equations, or graphical problems, and you need to solve them. "
-    Note: Use the PEMDAS rule for solving mathematical expressions. PEMDAS stands for the Priority Order: Parentheses, Exponents, Multiplication and Division (from left to right), Addition and Subtraction (from left to right). Parentheses have the highest priority, followed by Exponents, then Multiplication and Division, and lastly Addition and Subtraction. "
-    YOU CAN HAVE FIVE TYPES OF EQUATIONS/EXPRESSIONS IN THIS IMAGE, AND ONLY ONE CASE SHALL APPLY EVERY TIME: "
-    Following are the cases: "
-    1. Simple mathematical expressions like 2 + 2, 3 * 4, 5 / 6, 7 - 8, etc.: Solve and return the answer in the format of a LIST OF DICT [{'expr': given expression, 'result': calculated answer}]. "
-    2. Set of Equations like x^2 + 2x + 1 = 0, 3y + 4x = 0, 5x^2 + 6y + 7 = 12, etc.: Solve for the given variables, and return the answer as a LIST OF DICTS with one dict for each variable.  For example: [{"expr": "x", "result": 2}, {"expr": "y", "result": 5}]. This example assumes x was calculated as 2, and y as 5. "
-    3. Assigning values to variables like x = 4, y = 5, z = 6, etc.: Assign values to variables and return as a LIST OF DICTS. For example: [{"expr": "x", "result": 4}, {"expr": "y", "result": 5}, {"expr": "z", "result": 6}]
-    4. Analyzing Graphical Math problems, which are word problems represented in drawing form, such as cars colliding, trigonometric problems, problems on the Pythagorean theorem, adding runs from a cricket wagon wheel, etc.: These will have a drawing representing some scenario and accompanying information with the image. Return the answer in the format of a LIST OF ONE DICT [{"expr": given expression, "result": calculated answer}].
-    5. Detecting Abstract Concepts that a drawing might show, such as love, hate, jealousy, patriotism, or a historic reference to war, invention, discovery, quote, etc.: Use the same format as others to return the answer, where 'expr' will be the explanation of the drawing, and 'result' will be the abstract concept.
-    Analyze the equation or expression in this image and return the answer in proper JSON format according to the given rules. Make sure to use extra backslashes for escape characters like \f -> \f, \n -> \n, etc. DO NOT USE BACKTICKS OR MARKDOWN FORMATTING `;
+  You have been given an image with some mathematical expressions, equations, or graphical problems, and you need to solve them.
+    You are an advanced mathematical problem solver. Analyze and solve the given mathematical expression or equation. Follow these guidelines:
 
+General Approach:
+
+Carefully read and understand the entire expression.
+Break down complex expressions into simpler components.
+Apply appropriate mathematical rules and properties.
+Show your work step-by-step for all calculations.
+Combine results of individual components if necessary.
+Double-check your work for accuracy.
+
+
+Mathematical Operations:
+
+Arithmetic: Apply PEMDAS (Parentheses, Exponents, Multiplication/Division, Addition/Subtraction).
+Algebra: Solve equations, simplify expressions, factor polynomials.
+Trigonometry: Use appropriate trigonometric identities and rules.
+Calculus: Perform differentiation, integration, and limit calculations as needed.
+Logarithms and Exponents: Apply logarithm rules and exponent properties correctly.
+Geometry: Use relevant formulas and theorems for geometric calculations.
+
+
+Special Considerations:
+
+Handle fractions, decimals, and percentages accurately.
+Pay attention to units and convert them if necessary.
+For word problems, clearly state any assumptions made.
+In complex expressions, maintain precision throughout calculations.
+
+
+Output Format:
+
+Present the final answer as a list of one dictionary: [{"expr": given_expression, "result": calculated_answer}]
+For equations with multiple variables, include one dictionary per variable:
+[{"expr": "x", "result": x_value}, {"expr": "y", "result": y_value}]
+Round results to 4 decimal places unless otherwise specified.
+
+
+Error Handling:
+
+If an expression is mathematically undefined or impossible, explain why.
+For expressions with multiple possible interpretations, provide the most likely interpretation and solution.
+
+
+
+Analyze the given mathematical expression or equation and provide a clear, step-by-step solution followed by the final answer in the proper JSON format.
+  `;
   const imagePart = base64ToGenerativePart(base64Image, "image/png");
   const result = await model.generateContent([prompt, imagePart]);
   return result.response.text();
