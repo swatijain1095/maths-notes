@@ -197,9 +197,13 @@ const MathCanvas = () => {
           ref={canvasRef}
           id="canvas"
           className="bg-white dark:bg-black w-full h-full"
+          onPointerDown={drawingStart}
           onMouseDown={drawingStart}
+          onPointerOut={drawingStop}
           onMouseOut={drawingStop}
+          onPointerUp={drawingStop}
           onMouseUp={drawingStop}
+          onPointerMove={draw}
           onMouseMove={draw}
           style={{
             cursor: isErasing
