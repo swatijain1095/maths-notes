@@ -11,6 +11,10 @@ import html2canvas from "html2canvas";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "../../src/hooks/use-toast";
 import { ToastAction } from "./ui/toast";
+import pencilLight from "../assets/pencil-light.svg";
+import pencilDark from "../assets/pencil-dark.svg";
+import eraserLight from "../assets/eraser-light.svg";
+import eraserDark from "../assets/eraser-dark.svg";
 
 interface GeneratedResult {
   expression: string;
@@ -203,8 +207,10 @@ const MathCanvas = () => {
           onMouseMove={draw}
           style={{
             cursor: isErasing
-              ? `url('../src/assets/eraser-${theme}.svg') 5 22, auto`
-              : `url('../src/assets/pencil-${theme}.svg') 5 22, auto`,
+              ? `url(${theme === "dark" ? eraserDark : eraserLight}) 5 22, auto`
+              : `url(${
+                  theme === "dark" ? pencilDark : pencilLight
+                }) 5 22, auto`,
           }}
         />
         {result &&
