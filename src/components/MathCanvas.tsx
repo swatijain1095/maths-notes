@@ -7,10 +7,6 @@ import { Eraser, PencilLine } from "lucide-react";
 import Draggable from "react-draggable";
 import { Slider } from "./ui/slider";
 import loader from "../../src/assets/loader.gif";
-import pencilDark from "../../src/assets/pencil-dark.svg";
-import pencilLight from "../../src/assets/pencil-light.svg";
-import eraserDark from "../../src/assets/eraser-dark.svg";
-import eraserLight from "../../src/assets/eraser-light.svg";
 import html2canvas from "html2canvas";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "../../src/hooks/use-toast";
@@ -207,10 +203,12 @@ const MathCanvas = () => {
           onMouseMove={draw}
           style={{
             cursor: isErasing
-              ? `url(${theme === "dark" ? eraserDark : eraserLight}) 5 22, auto`
-              : `url(${
-                  theme === "dark" ? pencilDark : pencilLight
-                }) 5 22, auto`,
+              ? `url(/eraser-${
+                  theme === "dark" ? "dark" : "light"
+                }.svg) 5 22, auto`
+              : `url(/pencil-${
+                  theme === "dark" ? "dark" : "light"
+                }.svg) 5 22, auto`,
           }}
         />
         {result &&
