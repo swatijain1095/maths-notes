@@ -7,14 +7,14 @@ import { Eraser, PencilLine } from "lucide-react";
 import Draggable from "react-draggable";
 import { Slider } from "./ui/slider";
 import loader from "../../src/assets/loader.gif";
+import pencilDark from "../../src/assets/pencil-dark.svg";
+import pencilLight from "../../src/assets/pencil-light.svg";
+import eraserDark from "../../src/assets/eraser-dark.svg";
+import eraserLight from "../../src/assets/eraser-light.svg";
 import html2canvas from "html2canvas";
 import { Toaster } from "./ui/toaster";
 import { useToast } from "../../src/hooks/use-toast";
 import { ToastAction } from "./ui/toast";
-import pencilLight from "../assets/pencil-light.svg";
-import pencilDark from "../assets/pencil-dark.svg";
-import eraserLight from "../assets/eraser-light.svg";
-import eraserDark from "../assets/eraser-dark.svg";
 
 interface GeneratedResult {
   expression: string;
