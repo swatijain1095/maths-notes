@@ -194,12 +194,12 @@ const MathCanvas = () => {
 
       <div
         ref={canvasContainerRef}
-        className="w-full h-full relative user-select-none touch-action-none"
+        className="w-full h-full relative select-none touch-none"
       >
         <canvas
           ref={canvasRef}
           id="canvas"
-          className="bg-white dark:bg-black w-full h-full user-select-none touch-action-none"
+          className="bg-white dark:bg-black w-full h-full select-none touch-none"
           onPointerDown={(e) => {
             e.preventDefault();
             drawingStart(e);
