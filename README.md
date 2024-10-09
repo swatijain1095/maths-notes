@@ -1,5 +1,5 @@
 # Maths-Notes
-This is an Apple instpired calculator application that can be used calculate mathematical problems. Just draw your problem and let AI work its magic ⭐
+This is an Apple inspired calculator application that can be used to calculate mathematical problems. Just draw your problem and let AI do its magic ⭐
 
 ## Live Demo
 https://maths-notes-ai.vercel.app/
