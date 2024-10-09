@@ -192,18 +192,33 @@ const MathCanvas = () => {
         {isErasing ? <Eraser /> : <PencilLine />}
       </div>
 
-      <div ref={canvasContainerRef} className="w-full h-full relative">
+      <div
+        ref={canvasContainerRef}
+        className="w-full h-full relative user-select-none touch-action-none"
+      >
         <canvas
           ref={canvasRef}
           id="canvas"
-          className="bg-white dark:bg-black w-full h-full"
-          onPointerDown={drawingStart}
+          className="bg-white dark:bg-black w-full h-full user-select-none touch-action-none"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            drawingStart(e);
+          }}
           onMouseDown={drawingStart}
-          onPointerOut={drawingStop}
+          onPointerOut={(e) => {
+            e.preventDefault();
+            drawingStop();
+          }}
           onMouseOut={drawingStop}
-          onPointerUp={drawingStop}
+          onPointerUp={(e) => {
+            e.preventDefault();
+            drawingStop();
+          }}
           onMouseUp={drawingStop}
-          onPointerMove={draw}
+          onPointerMove={(e) => {
+            e.preventDefault();
+            draw(e);
+          }}
           onMouseMove={draw}
           style={{
             cursor: isErasing

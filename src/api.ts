@@ -46,55 +46,17 @@ export const callGeminiApi = async (base64Image: string) => {
       responseSchema: schema,
     },
   });
-  const prompt = `
-  You have been given an image with some mathematical expressions, equations, or graphical problems, and you need to solve them.
-    You are an advanced mathematical problem solver. Analyze and solve the given mathematical expression or equation. Follow these guidelines:
+  const prompt = `You have been given an image with some variable assignments, mathematical expressions, equations, or graphical problems. You need to solve them. Solve them using BODMAS. The following cases apply:
+1. Simple mathematical expressions (like 2 + 2, 3 * 4) - solve and return a single result following the schema like {{'expr': '2 + 2', 'result': '4'}}, and so on.
+2. Set of Equations like 2x + 10y = 5, 5x + 15y = 10, x = , y = etc.: In this case, solve for all the given variable, and the follow schema to give response in LIST OF DICTS,
+ with dict 1 as {{'expr': '2x + 10y', 'result': '5'}}, dict 2 as {{'expr': '5x + 15y', 'result': '10'}}, dict 3 as {{'expr': 'x', 'result': '1.25'}} and dict 4 as {{'expr': 'y', 'result': '0.25'}}.
+3. Assigning values to variables like x = 4, y = 5, z = 6, etc.: In this case, assign values to variables and return as dicts, with the variable as 'expr' and the value as 'result'. RETURN AS A LIST OF DICTS.
+4. CONSIDER NEGATIVE AND ZERO VALUES AS WELL IN YOUR EXPRESSION, like for expression 2 - 2, 0 - 3, x = -5, 2 + x. answers should be in LIST OF DICTS like below :
+{{'expr': '2 - 2', 'result': '0'}}, {{'expr': '0 - 3', 'result': '-3'}}, {{'expr': 'x', 'result': '-5'}}, {{'expr': '2 + x', 'result': '-3'}}, etc.
+5. Graphical math problems (car collisions, Pythagorean theorem) - solve and return the result.
+6. Abstract concepts (love, war, etc.) in drawings - interpret and return the concept.
+Solve the expression and return the result in the proper JSON format.`;
 
-General Approach:
-
-Carefully read and understand the entire expression.
-Break down complex expressions into simpler components.
-Apply appropriate mathematical rules and properties.
-Show your work step-by-step for all calculations.
-Combine results of individual components if necessary.
-Double-check your work for accuracy.
-
-
-Mathematical Operations:
-
-Arithmetic: Apply PEMDAS (Parentheses, Exponents, Multiplication/Division, Addition/Subtraction).
-Algebra: Solve equations, simplify expressions, factor polynomials.
-Trigonometry: Use appropriate trigonometric identities and rules.
-Calculus: Perform differentiation, integration, and limit calculations as needed.
-Logarithms and Exponents: Apply logarithm rules and exponent properties correctly.
-Geometry: Use relevant formulas and theorems for geometric calculations.
-
-
-Special Considerations:
-
-Handle fractions, decimals, and percentages accurately.
-Pay attention to units and convert them if necessary.
-For word problems, clearly state any assumptions made.
-In complex expressions, maintain precision throughout calculations.
-
-
-Output Format:
-
-Present the final answer as a list of one dictionary: [{"expr": given_expression, "result": calculated_answer}]
-For equations with multiple variables, include one dictionary per variable:
-[{"expr": "x", "result": x_value}, {"expr": "y", "result": y_value}]
-Round results to 4 decimal places unless otherwise specified.
-
-
-Error Handling:
-
-If an expression is mathematically undefined or impossible, explain why.
-For expressions with multiple possible interpretations, provide the most likely interpretation and solution.
-
-
-
-Analyze the given mathematical expression or equation and provide a clear, step-by-step solution followed by the final answer in the proper JSON format.
-  `;
   const imagePart = base64ToGenerativePart(base64Image, "image/png");
   const result = await model.generateContent([prompt, imagePart]);
   return result.response.text();
